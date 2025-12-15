@@ -8,6 +8,7 @@ import mcpRoutes from './routes/mcp';
 import apiPingRoutes from './routes/apiPing';
 import apiResourcesRoutes from './routes/apiResources';
 import paymentRoutes from './routes/payments';
+import messageRoutes from './routes/messages';
 import { getOpenApiSpec } from './openapi';
 import { initializeFirebase } from './config/firebase';
 export function createApp() {
@@ -23,6 +24,7 @@ export function createApp() {
   app.use('/api', rateLimiter());
   app.use('/api', apiPingRoutes);
   app.use('/api', apiResourcesRoutes);
+  app.use('/api', messageRoutes);
   app.use('/api/payments', paymentRoutes);
   app.use('/mcp', mcpRoutes);
   app.use(errorHandler);
