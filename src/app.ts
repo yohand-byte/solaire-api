@@ -7,10 +7,13 @@ import healthRoutes from './routes/health';
 import mcpRoutes from './routes/mcp';
 import apiPingRoutes from './routes/apiPing';
 import apiResourcesRoutes from './routes/apiResources';
+import paymentRoutes from './routes/payments';
 import { getOpenApiSpec } from './openapi';
 import { initializeFirebase } from './config/firebase';
 export function createApp() {
-  initializeFirebase();
+  if (process.env.NODE_ENV !== 'test') {
+    initializeFirebase();
+  }
   const app = express();
   setupSecurity(app);
   app.get('/openapi.json', (_req, res) => res.json(getOpenApiSpec()));
@@ -20,6 +23,7 @@ export function createApp() {
   app.use('/api', rateLimiter());
   app.use('/api', apiPingRoutes);
   app.use('/api', apiResourcesRoutes);
+  app.use('/api/payments', paymentRoutes);
   app.use('/mcp', mcpRoutes);
   app.use(errorHandler);
   return app;
