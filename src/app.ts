@@ -6,8 +6,11 @@ import { rateLimiter } from './middleware/rateLimiter';
 import healthRoutes from './routes/health';
 import mcpRoutes from './routes/mcp';
 import apiPingRoutes from './routes/apiPing';
+import apiResourcesRoutes from './routes/apiResources';
 import { getOpenApiSpec } from './openapi';
+import { initializeFirebase } from './config/firebase';
 export function createApp() {
+  initializeFirebase();
   const app = express();
   setupSecurity(app);
   app.get('/openapi.json', (_req, res) => res.json(getOpenApiSpec()));
@@ -16,6 +19,7 @@ export function createApp() {
   app.use('/api/health', healthRoutes);
   app.use('/api', rateLimiter());
   app.use('/api', apiPingRoutes);
+  app.use('/api', apiResourcesRoutes);
   app.use('/mcp', mcpRoutes);
   app.use(errorHandler);
   return app;

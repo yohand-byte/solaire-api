@@ -15,8 +15,10 @@ export function initializeFirebase() {
       admin.initializeApp({ credential: admin.credential.applicationDefault() });
       initialized = true;
       console.log('Firebase initialized (ADC)');
-    } catch (err) {
-      console.warn('Firebase not initialized:', err);
+    } catch (_err) {
+      admin.initializeApp({ projectId: process.env.FIREBASE_PROJECT_ID || 'demo-test' });
+      initialized = true;
+      console.warn('Firebase initialized with fallback projectId (demo-test)');
     }
   }
 }
