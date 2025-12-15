@@ -3,13 +3,9 @@ import express from "express";
 import cors from "cors";
 import { Firestore } from "@google-cloud/firestore";
 
-// ==================== GOOGLE CLOUD CREDENTIALS ====================
 if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
   try {
-    let credJson = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON, "base64").toString("utf-8");
-    // Always normalize escaped newlines to real newlines for OpenSSL
-    credJson = credJson.replace(/\\n/g, "\n");
-    JSON.parse(credJson); // validate
+    const credJson = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON, "base64").toString("utf-8");
     const credPath = "/tmp/google-creds.json";
     fs.writeFileSync(credPath, credJson);
     process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
@@ -17,10 +13,7 @@ if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
   } catch (err) {
     console.error("❌ Failed to load credentials:", err.message);
   }
-} else {
-  console.log("⚠️ GOOGLE_APPLICATION_CREDENTIALS_JSON not set");
 }
-// ===================================================================
 
 const app = express();
 app.use(express.json());
