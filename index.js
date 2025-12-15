@@ -6,14 +6,10 @@ import { Firestore } from "@google-cloud/firestore";
 // ==================== GOOGLE CLOUD CREDENTIALS ====================
 if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
   try {
-    let credJson = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON, "base64").toString();
-    try {
-      JSON.parse(credJson);
-    } catch {
-      // tolerate escaped newlines
-      credJson = credJson.replace(/\\n/g, "\n");
-      JSON.parse(credJson);
-    }
+    let credJson = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON, "base64").toString("utf-8");
+    // Always normalize escaped newlines to real newlines for OpenSSL
+    credJson = credJson.replace(/\\n/g, "\n");
+    JSON.parse(credJson); // validate
     const credPath = "/tmp/google-creds.json";
     fs.writeFileSync(credPath, credJson);
     process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
