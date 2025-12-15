@@ -3,6 +3,7 @@ import swaggerUi from 'swagger-ui-express';
 import { setupSecurity } from './middleware/securityMiddleware';
 import { errorHandler } from './middleware/errorHandler';
 import healthRoutes from './routes/health';
+import mcpRoutes from './routes/mcp';
 import { getOpenApiSpec } from './openapi';
 export function createApp() {
   const app = express();
@@ -11,6 +12,7 @@ export function createApp() {
   app.use('/docs', swaggerUi.serve, swaggerUi.setup(undefined, { swaggerOptions: { url: '/openapi.json' } }));
   app.use('/health', healthRoutes);
   app.use('/api/health', healthRoutes);
+  app.use('/mcp', mcpRoutes);
   app.use(errorHandler);
   return app;
 }
