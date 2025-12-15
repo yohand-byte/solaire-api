@@ -1,6 +1,21 @@
+import fs from "fs";
 import express from "express";
 import cors from "cors";
 import { Firestore } from "@google-cloud/firestore";
+
+// ==================== GOOGLE CLOUD CREDENTIALS ====================
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  try {
+    const credJson = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON, "base64").toString();
+    const credPath = "/tmp/google-creds.json";
+    fs.writeFileSync(credPath, credJson);
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
+    console.log("✅ Google Cloud credentials loaded from env");
+  } catch (err) {
+    console.error("❌ Failed to load credentials:", err.message);
+  }
+}
+// ===================================================================
 
 const app = express();
 app.use(express.json());
@@ -387,7 +402,6 @@ app.get("/files/:id/events", async (req, res) => {
   }
 });
 
-// GET /installateurs/:id/leads - SANS orderBy (pas d'index requis)
 app.get("/installateurs/:id/leads", async (req, res) => {
   const { id } = req.params;
   try {
@@ -404,7 +418,6 @@ app.get("/installateurs/:id/leads", async (req, res) => {
   }
 });
 
-// GET /installateurs/:id/dossiers - SANS orderBy (pas d'index requis)
 app.get("/installateurs/:id/dossiers", async (req, res) => {
   const { id } = req.params;
   try {
@@ -428,7 +441,6 @@ app.get("/installateurs/:id/dossiers", async (req, res) => {
   }
 });
 
-// GET /installateurs/:id/stats - SANS orderBy (pas d'index requis)
 app.get("/installateurs/:id/stats", async (req, res) => {
   const { id } = req.params;
   try {
