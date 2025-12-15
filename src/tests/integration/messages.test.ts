@@ -37,6 +37,16 @@ describe('Messages', () => {
     expect(readRes.body.read).toBe(true);
   });
 
+  it('rejects invalid payload', async () => {
+    const res = await request(app).post('/api/messages').send({ content: '' });
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 404 on mark read unknown', async () => {
+    const res = await request(app).put('/api/messages/unknown/read');
+    expect(res.status).toBe(404);
+  });
+
   it('emits message:new over socket', (done) => {
     const client = ioClient(`http://localhost:${port}`);
     client.on('connect', async () => {

@@ -31,4 +31,9 @@ describe('Resources', () => {
     expect(res.body).toHaveProperty('items');
     expect(Array.isArray(res.body.items)).toBe(true);
   });
+
+  it('handles invalid path gracefully', async () => {
+    const res = await request(app).get('/api/workflows?id=');
+    expect(res.status).toBe(200);
+  });
 });
