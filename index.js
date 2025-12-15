@@ -6,7 +6,8 @@ import { Firestore } from "@google-cloud/firestore";
 // ==================== GOOGLE CLOUD CREDENTIALS ====================
 if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
   try {
-    const credJson = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON, "base64").toString();
+    let credJson = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON, "base64").toString();
+    credJson = credJson.replace(/\\n/g, '\n');
     const credPath = "/tmp/google-creds.json";
     fs.writeFileSync(credPath, credJson);
     process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
