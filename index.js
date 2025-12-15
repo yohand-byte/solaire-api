@@ -350,6 +350,20 @@ app.post("/files", requireWriteToken, async (req, res) => {
   }
 });
 
+app.get("/files/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const doc = await firestore.collection("files").doc(id).get();
+    if (!doc.exists) {
+      return res.status(404).json({ error: "File not found" });
+    }
+    return res.json({ ok: true, id: doc.id, ...doc.data() });
+  } catch (err) {
+    console.error("Error fetching file:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 app.patch("/files/:id", requireWriteToken, async (req, res) => {
   const { id } = req.params;
   try {
