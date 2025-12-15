@@ -6,8 +6,14 @@ import { Firestore } from "@google-cloud/firestore";
 // ==================== GOOGLE CLOUD CREDENTIALS ====================
 if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
   try {
-    const credJson = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON, "base64").toString();
-    JSON.parse(credJson);
+    let credJson = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON, "base64").toString();
+    try {
+      JSON.parse(credJson);
+    } catch {
+      // tolerate escaped newlines
+      credJson = credJson.replace(/\\n/g, "\n");
+      JSON.parse(credJson);
+    }
     const credPath = "/tmp/google-creds.json";
     fs.writeFileSync(credPath, credJson);
     process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
