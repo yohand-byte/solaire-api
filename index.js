@@ -4,48 +4,8 @@ import cors from "cors";
 import { Firestore } from "@google-cloud/firestore";
 
 // ==================== GOOGLE CLOUD CREDENTIALS ====================
-if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-  try {
-    const rawEnv = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
-
-    const normalize = (s) => s.replace(/\\n/g, "\n");
-    const tryJson = (label, str) => {
-      const fixed = normalize(str);
-      JSON.parse(fixed); // throws if bad
-      return fixed;
-    };
-
-    let credJson = null;
-    let source = "";
-
-    // Try plain JSON first
-    try {
-      credJson = tryJson("raw", rawEnv);
-      source = "raw";
-    } catch (_) {
-      // Try base64
-      try {
-        const decoded = Buffer.from(rawEnv, "base64").toString("utf8");
-        credJson = tryJson("base64", decoded);
-        source = "base64";
-      } catch (errb64) {
-        console.error("❌ Failed to parse credentials (raw and base64):", errb64.message);
-      }
-    }
-
-    if (credJson) {
-      const credPath = "/tmp/google-creds.json";
-      fs.writeFileSync(credPath, credJson);
-      process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
-      console.log(`✅ Google Cloud credentials loaded from env (${source})`);
-    } else {
-      throw new Error("No valid credentials JSON");
-    }
-  }
-  catch (err) {
-    console.error("❌ Failed to load credentials:", err.message);
-  }
-}
+process.env.GOOGLE_APPLICATION_CREDENTIALS = "/opt/render/project/src/google-creds.json";
+console.log("✅ Using service account credentials file");
 // ===================================================================
 
 const app = express();
