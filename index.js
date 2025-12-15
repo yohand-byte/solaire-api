@@ -6,14 +6,47 @@ import { Firestore } from "@google-cloud/firestore";
 // ==================== GOOGLE CLOUD CREDENTIALS ====================
 if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
   try {
-    let credJson = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON, "base64").toString();
+    const raw = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+
+    const tryParse = (s) => {
+      const fixed = s.replace(/\\n/g, '\n');
+      JSON.parse(fixed); // throws if invalid
+      return fixed;
+    };
+
+    let credJson;
+
+    // 1) try base64-decoded string
+    const b64 = Buffer.from(raw, "base64").toString("utf8");
+    credJson = tryParse(b64);
+
+    // 2) if base64 did not yield JSON (caught below), fallback to raw (plain JSON env)
+  } catch (err1) {
+    try {
+      const raw = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+      const credJson = raw.replace(/\\n/g, '\n');
+      JSON.parse(credJson);
+      const credPath = "/tmp/google-creds.json";
+      fs.writeFileSync(credPath, credJson);
+      process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
+      console.log("✅ Google Cloud credentials loaded from raw env JSON");
+    } catch (err2) {
+      console.error("❌ Failed to load credentials:", err2.message);
+    }
+    return;
+  }
+
+  try {
+    // We reach here if base64 path succeeded
+    const raw = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+    let credJson = Buffer.from(raw, "base64").toString("utf8");
     credJson = credJson.replace(/\\n/g, '\n');
     const credPath = "/tmp/google-creds.json";
     fs.writeFileSync(credPath, credJson);
     process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
-    console.log("✅ Google Cloud credentials loaded from env");
+    console.log("✅ Google Cloud credentials loaded from env (base64)");
   } catch (err) {
-    console.error("❌ Failed to load credentials:", err.message);
+    console.error("❌ Failed to finalize credentials:", err.message);
   }
 }
 // ===================================================================
