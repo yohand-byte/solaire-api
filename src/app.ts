@@ -10,6 +10,7 @@ export function createApp() {
   app.get('/openapi.json', (_req, res) => res.json(getOpenApiSpec()));
   app.use('/docs', swaggerUi.serve, swaggerUi.setup(undefined, { swaggerOptions: { url: '/openapi.json' } }));
   app.use('/health', healthRoutes);
+  app.use('/api/health', healthRoutes);
   app.use(errorHandler);
   return app;
 }
