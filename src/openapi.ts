@@ -1,0 +1,3 @@
+export function getOpenApiSpec() {
+  return { openapi: '3.0.3', info: { title: 'Solaire API', version: '1.0.0' }, paths: { '/health': { get: { summary: 'Health check', responses: { '200': { description: 'OK' } } } } } };
+}

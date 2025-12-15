@@ -1,3 +1,10 @@
 node_modules/
-source.zip
-google-creds.json
+dist/
+coverage/
+.env
+.env.local
+*.log
+serviceAccountKey.json
+.DS_Store
+.idea/
+.vscode/
