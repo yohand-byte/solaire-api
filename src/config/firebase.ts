@@ -1,5 +1,9 @@
 import * as admin from 'firebase-admin';
 let initialized = false;
+function ensureInit() {
+  if (initialized) return;
+  initializeFirebase();
+}
 export function initializeFirebase() {
   if (initialized) return;
   const fallbackProject = process.env.FIREBASE_PROJECT_ID || 'demo-test';
@@ -34,6 +38,7 @@ export function initializeFirebase() {
 }
 export const getAdmin = () => admin;
 export const getDb = () => {
+  ensureInit();
   const isTest = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID !== undefined;
   if (isTest) {
     const mem = {
@@ -53,4 +58,7 @@ export const getDb = () => {
   }
   return admin.firestore();
 };
-export const getAuth = () => admin.auth();
+export const getAuth = () => {
+  ensureInit();
+  return admin.auth();
+};
