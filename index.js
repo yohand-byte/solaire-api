@@ -6,47 +6,44 @@ import { Firestore } from "@google-cloud/firestore";
 // ==================== GOOGLE CLOUD CREDENTIALS ====================
 if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
   try {
-    const raw = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+    const rawEnv = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
 
-    const tryParse = (s) => {
-      const fixed = s.replace(/\\n/g, '\n');
-      JSON.parse(fixed); // throws if invalid
+    const normalize = (s) => s.replace(/\\n/g, "\n");
+    const tryJson = (label, str) => {
+      const fixed = normalize(str);
+      JSON.parse(fixed); // throws if bad
       return fixed;
     };
 
-    let credJson;
+    let credJson = null;
+    let source = "";
 
-    // 1) try base64-decoded string
-    const b64 = Buffer.from(raw, "base64").toString("utf8");
-    credJson = tryParse(b64);
-
-    // 2) if base64 did not yield JSON (caught below), fallback to raw (plain JSON env)
-  } catch (err1) {
+    // Try plain JSON first
     try {
-      const raw = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
-      const credJson = raw.replace(/\\n/g, '\n');
-      JSON.parse(credJson);
+      credJson = tryJson("raw", rawEnv);
+      source = "raw";
+    } catch (_) {
+      // Try base64
+      try {
+        const decoded = Buffer.from(rawEnv, "base64").toString("utf8");
+        credJson = tryJson("base64", decoded);
+        source = "base64";
+      } catch (errb64) {
+        console.error("❌ Failed to parse credentials (raw and base64):", errb64.message);
+      }
+    }
+
+    if (credJson) {
       const credPath = "/tmp/google-creds.json";
       fs.writeFileSync(credPath, credJson);
       process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
-      console.log("✅ Google Cloud credentials loaded from raw env JSON");
-    } catch (err2) {
-      console.error("❌ Failed to load credentials:", err2.message);
+      console.log(`✅ Google Cloud credentials loaded from env (${source})`);
+    } else {
+      throw new Error("No valid credentials JSON");
     }
-    return;
   }
-
-  try {
-    // We reach here if base64 path succeeded
-    const raw = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
-    let credJson = Buffer.from(raw, "base64").toString("utf8");
-    credJson = credJson.replace(/\\n/g, '\n');
-    const credPath = "/tmp/google-creds.json";
-    fs.writeFileSync(credPath, credJson);
-    process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
-    console.log("✅ Google Cloud credentials loaded from env (base64)");
-  } catch (err) {
-    console.error("❌ Failed to finalize credentials:", err.message);
+  catch (err) {
+    console.error("❌ Failed to load credentials:", err.message);
   }
 }
 // ===================================================================
