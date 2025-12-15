@@ -22,7 +22,13 @@ const app = express();
 app.use(express.json());
 app.use(cors({ origin: "*"}));
 
-const firestore = new Firestore({ projectId: "solaire-frontend" });
+const firestore = new Firestore({
+  projectId:
+    process.env.FIRESTORE_PROJECT_ID ||
+    process.env.GCLOUD_PROJECT ||
+    process.env.GOOGLE_CLOUD_PROJECT ||
+    "solaire-frontend",
+});
 
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || "";
 const SIGNING_SECRET = process.env.SIGNING_SECRET || "";
