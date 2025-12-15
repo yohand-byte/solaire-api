@@ -4,8 +4,20 @@ import cors from "cors";
 import { Firestore } from "@google-cloud/firestore";
 
 // ==================== GOOGLE CLOUD CREDENTIALS ====================
-process.env.GOOGLE_APPLICATION_CREDENTIALS = "/opt/render/project/src/google-creds.json";
-console.log("✅ Using service account credentials file");
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  try {
+    let credJson = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON, "base64").toString();
+    credJson = credJson.replace(/\\n/g, '\\n');
+    const credPath = "/tmp/google-creds.json";
+    fs.writeFileSync(credPath, credJson);
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
+    console.log("✅ Google Cloud credentials loaded from env");
+  } catch (err) {
+    console.error("❌ Failed to load credentials:", err.message);
+  }
+} else {
+  console.log("⚠️ GOOGLE_APPLICATION_CREDENTIALS_JSON not set");
+}
 // ===================================================================
 
 const app = express();
