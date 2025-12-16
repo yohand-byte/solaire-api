@@ -4,3 +4,4 @@ export interface Workflow { id: string; projectId: string; type: 'dp'|'consuel'|
 export interface Invoice { id: string; projectId: string; number: string; total: number; status: 'draft'|'sent'|'paid'; createdAt: Date; }
 export interface Message { id: string; projectId: string; senderId: string; recipientId?: string; content: string; createdAt: Date; read?: boolean; }
 export interface Document { id: string; projectId: string; filename: string; fileUrl: string; uploadedAt: Date; }
+export interface AuthRequest extends Express.Request { user?: { uid: string; email?: string }; }
